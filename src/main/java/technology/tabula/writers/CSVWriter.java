@@ -33,8 +33,8 @@ public class CSVWriter implements Writer {
 		try (CSVPrinter printer = new CSVPrinter(out, format)) {
 			for (Table table : tables) {
 				for (List<RectangularTextContainer> row : table.getRows()) {
-					List<String> cells = new ArrayList<>(row.size());
-					for (RectangularTextContainer<?> tc : row) cells.add(tc.getText());
+					List<String> cells = new ArrayList<>(1);
+					cells.add(row.get(4).getText());
 					printer.printRecord(cells);
 				}
 			}

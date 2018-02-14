@@ -2,6 +2,8 @@ package technology.tabula;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -27,6 +29,14 @@ public class TestWriters {
         return table;
     }
 
+    private Table getTableTrading() throws IOException {
+        //Page page = UtilsForTesting.getAreaFromFirstPage("src/test/resources/technology/tabula/trading.pdf", 124.875f, 12.75f, 790.5f, 561f);
+        Page page = UtilsForTesting.getAreaFromFirstPage("src/test/resources/technology/tabula/95.pdf", 124.875f, 12.75f, 790.5f, 561f);
+        BasicExtractionAlgorithm bea = new BasicExtractionAlgorithm();
+        Table table = bea.extract(page).get(0);
+        return table;
+    }
+
     private List<Table> getTables() throws IOException {
 
         Page page = UtilsForTesting.getPage("src/test/resources/technology/tabula/twotables.pdf", 1);
@@ -36,7 +46,7 @@ public class TestWriters {
 
     @Test
     public void testCSVWriter() throws IOException {
-    	String expectedCsv = UtilsForTesting.loadCsv("src/test/resources/technology/tabula/csv/argentina_diputados_voting_record.csv");
+        String expectedCsv = UtilsForTesting.loadCsv("src/test/resources/technology/tabula/csv/argentina_diputados_voting_record.csv");
         Table table = this.getTable();
         StringBuilder sb = new StringBuilder();
         (new CSVWriter()).write(sb, table);
@@ -44,6 +54,33 @@ public class TestWriters {
         String[] lines = s.split("\\r?\\n");
         assertEquals(lines[0], EXPECTED_CSV_WRITER_OUTPUT);
         assertEquals(expectedCsv, s);
+    }
+
+    @Test
+    public void testCSVWriterTrading() throws IOException {
+        //String expectedCsv = UtilsForTesting.loadCsv("src/test/resources/technology/tabula/csv/trading.csv");
+        String expectedCsv = UtilsForTesting.loadCsv("src/test/resources/technology/tabula/csv/95.csv");
+        Table table = this.getTableTrading();
+        StringBuilder sb = new StringBuilder();
+        (new CSVWriter()).write(sb, table);
+        String s = sb.toString();
+        String[] lines = s.split("\\r?\\n");
+        //assertEquals(lines[0], EXPECTED_CSV_WRITER_OUTPUT);
+        saveCsv(lines);
+        assertEquals(expectedCsv, s);
+    }
+
+    private void saveCsv(String[] lines) throws IOException {
+        BufferedWriter br = new BufferedWriter(new FileWriter("myfile2.csv"));
+        StringBuilder sb = new StringBuilder();
+        for (String element : lines) {
+            element = element.replaceAll("\"", "").replace("€", "");
+            sb.append(element.trim());
+            sb.append("\n");
+        }
+
+        br.write(sb.toString());
+        br.close();
     }
 
     // TODO Add assertions
